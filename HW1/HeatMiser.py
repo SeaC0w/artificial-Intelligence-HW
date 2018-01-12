@@ -97,7 +97,7 @@ def run():
         # otherwise, change the humidity
         else:
             # if the std dev is in range, adjust room base on current avg
-            if stdDevHumid < optHumidDev + 0.01:
+            if stdDevHumidGood:
                 if avgHumid < optHumid:
                     humids[index] += 1
                     actionDescription = "Humidity Increase"
