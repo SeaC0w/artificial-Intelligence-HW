@@ -1,7 +1,7 @@
 # HeatMiser implementation by Kerim Celik and Julia Connelly
 import random
 import numpy
-#import tabulate
+from tabulate import tabulate
 
 def getListAverage(ls):
     return sum(ls) / len(ls)
@@ -26,6 +26,7 @@ def main():
 
     # HeatMiser does the problem
     index = 0
+    count = 0
     avgTemp = getListAverage(temps)
     avgHumid = getListAverage(humids)
     stdDevTemp = getListStdDev(temps)
@@ -35,20 +36,22 @@ def main():
     avgHumidGood = inRange(avgHumid, optHumid)
     stdDevTempGood = stdDevTemp < optTempDev + 0.1
     stdDevHumidGood = stdDevHumid < optHumidDev + 0.01
-
-    print(temps)
-    print(humids)
+    rooms = []
+    for i in range(1,13):
+        rooms.append("Room " + str(i))
+    rowIDs = ["Room Number", "Temp", "Humidity"]
+    print("INITIAL STATE OF ROOMS")
+    print(tabulate([rooms, temps, humids], showindex=rowIDs, tablefmt="grid"))
     print("\n")
     while not (avgTempGood and avgHumidGood and stdDevTempGood and stdDevHumidGood):
-#        print(temps)
-#        print(humids)
-#        print("\n")
+        tabl = []
         if (not (avgTempGood and stdDevTempGood)):
             if (temps[index] < optTemp):
-                #print("a")
+                print("HeatMiser raised the temperature in Room " + str(index) + " by 1 degree.")
                 temps[index] += 1
+                table = ["Visit " + str(count + 1), "Office " + str(index + 1), temps[index], humids[index], "Temperature Up"]
             elif (temps[index] >= optTemp + 1):
-                #print("b")
+                print("HeatMiser lowered the temperature in Room " + str(index) + " by 1 degree.")
                 temps[index] -= 1
 #            else:
 #                if (humids[index] < optHumid):
@@ -59,14 +62,15 @@ def main():
 #                    humids[index] -= 1
         else:
             if (humids[index] < optHumid):
-                #print("c")
+                print("HeatMiser raised the humidity in Room " + str(index) + " by 1 percent.")
                 humids[index] += 1
             elif (humids[index] >= optHumid + 1):
-                #print("d")
+                print("HeatMiser lowered the humidity in Room " + str(index) + " by 1 percent.")
                 humids[index] -= 1
             else:
                 print("HeatMiser does nothing in room " + str(index) + ".")
         index += 1
+        count += 1
         if (index == 12):
             index = 0
         avgTemp = getListAverage(temps)
