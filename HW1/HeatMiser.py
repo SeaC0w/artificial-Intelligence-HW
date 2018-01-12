@@ -77,25 +77,41 @@ def run():
         # if the temperature measures are not correct, change this room
         if not (avgTempGood and stdDevTempGood):
             # if the std dev is in range, adjust room base on current avg
+            if stdDevTempGood:
+                if avgTemp < optTemp:
+                    temps[index] += 1
+                    actionDescription = "Temperature Increase"
+                elif avgTemp >= optTemp + 1:
+                    temps[index] -= 1
+                    actionDescription = "Temperature Decrease"
             # otherwise move temperature closer to desired average
-            if (stdDevTempGood and avgTemp < optTemp) or temps[index] < optTemp:
-                temps[index] += 1
-                actionDescription = "Temperature Increase"
-            elif (stdDevTempGood and avgTemp >= optTemp + 1) or temps[index] >= optTemp + 1:
-                temps[index] -= 1
-                actionDescription = "Temperature Decrease"
+            else:
+                if temps[index] < optTemp:
+                    temps[index] += 1
+                    actionDescription = "Temperature Increase"
+                elif temps[index] >= optTemp + 1:
+                    temps[index] -= 1
+                    actionDescription = "Temperature Decrease"
             avgTemp = getListAverage(temps)
             stdDevTemp = getListStdDev(temps)
         # otherwise, change the humidity
         else:
             # if the std dev is in range, adjust room base on current avg
+            if stdDevHumidGood:
+                if avgHumid < optHumid:
+                    humids[index] += 1
+                    actionDescription = "Humidity Increase"
+                elif avgHumid >= optHumid + 1:
+                    humids[index] -= 1
+                    actionDescription = "Humidity Decrease"
             # otherwise move humidity closer to desired average
-            if (stdDevHumidGood and avgHumid < optHumid) or humids[index] < optHumid:
-                humids[index] += 1
-                actionDescription = "Humidity Increase"
-            elif (stdDevHumidGood and avgHumid >= optHumid + 1) or humids[index] >= optHumid + 1:
-                humids[index] -= 1
-                actionDescription = "Humidity Decrease"
+            else:
+                if humids[index] < optHumid:
+                    humids[index] += 1
+                    actionDescription = "Humidity Increase"
+                elif humids[index] >= optHumid + 1:
+                    humids[index] -= 1
+                    actionDescription = "Humidity Decrease"
             avgHumid = getListAverage(humids)
             stdDevHumid = getListStdDev(humids)
 
@@ -133,11 +149,10 @@ def run():
 
 def main():
     numVisits = []
-    for i in range(1, 101):
+    for i in range(1,101):
         print("Run " + str(i))
         numVisits.append(run())
     print("Average Number of Rooms Visited by HeatMiser over 100 Simulations: " + str(getListAverage(numVisits)))
-    print("Standard Deviation over 100 Simulations: " + str(getListStdDev(numVisits)))
 
 
 if __name__ == "__main__":
