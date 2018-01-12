@@ -153,6 +153,7 @@ def main():
         print("Run " + str(i))
         numVisits.append(run())
     print("Average Number of Rooms Visited by HeatMiser over 100 Simulations: " + str(getListAverage(numVisits)))
+    print("Standard Deviation over 100 Simulations: " + str(getListStdDev(numVisits)))
 
 
 if __name__ == "__main__":
