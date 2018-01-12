@@ -142,6 +142,7 @@ def run():
     print("FINAL TEMPERATURE STD DEV: " + str(stdDevTemp))
     print("FINAL AVERAGE HUMIDITY: " + str(avgHumid))
     print("FINAL HUMIDITY STD DEV: " + str(stdDevHumid))
+    print("TOTAL NUMBER OF VISITS: " + str(count))
     print("\n")
     return count
 
