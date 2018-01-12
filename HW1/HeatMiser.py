@@ -71,7 +71,7 @@ def run():
     # HeatMiser does the problem
     while not (avgTempGood and avgHumidGood and stdDevTempGood and stdDevHumidGood):
         # display information
-        table.addToTable(index + 1)
+        table.addToTable(index + 1, temps[index], humids[index])
         actionDescription = ""
 
         # if the temperature measures are not correct, change this room
@@ -128,8 +128,7 @@ def run():
         # display information
         if actionDescription == "":
             actionDescription = "No Action"
-        table.addToTable(temps[index], humids[index], actionDescription)
-        table.addToTable(avgTemp, stdDevTemp, avgHumid, stdDevHumid)
+        table.addToTable(actionDescription, avgTemp, stdDevTemp, avgHumid, stdDevHumid)
         table.nextTable()
 
     # print stuff
