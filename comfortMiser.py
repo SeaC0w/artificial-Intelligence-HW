@@ -49,7 +49,7 @@ class Room:
 
         
 class Building:
-    def __init__(self):
+    def __init__(self, edges):
         self.numRooms = 12
         self.minTemp = 65
         self.maxTemp = 75
@@ -64,19 +64,13 @@ class Building:
         for i in range(self.numRooms):
             x = Room(random.randint(self.minTemp, self.maxTemp), random.randint(self.minHumid, self.maxHumid))
             self.roomList.append(x)
+
         self.edgeMatrix = []
-        self.edgeMatrix.append([0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        self.edgeMatrix.append([1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
-        self.edgeMatrix.append([1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
-        self.edgeMatrix.append([0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0])
-        self.edgeMatrix.append([0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0])
-        self.edgeMatrix.append([0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0])
-        self.edgeMatrix.append([0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0])
-        self.edgeMatrix.append([0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0])
-        self.edgeMatrix.append([0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0])
-        self.edgeMatrix.append([0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0])
-        self.edgeMatrix.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1])
-        self.edgeMatrix.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])
+        for i in range(self.numRooms):
+            self.edgeMatrix.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+        for e in edges:
+            self.edgeMatrix[int(e[0]) - 1][int(e[1]) - 1] = int(e[2])
 
     def display(self):
         rooms = list(map(lambda r: "temp: " + str(r.temp) + " humid: " + str(r.humid), self.roomList))
@@ -156,8 +150,15 @@ class Building:
         #         self.roomList[room].setHumid(self.optHumid)
 
 
-def main():    
-    b = Building()
+def main():
+    f = open("HeatMiserHeuristic.txt", "r")
+    file = f.read()
+    lines = file.split("\n")
+    info = []
+    for l in lines:
+        info.append(l.split())
+    info.pop(0)
+    b = Building(info)
     count = 0
     while not b.isOpt():
         count += 1
