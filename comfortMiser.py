@@ -3,7 +3,24 @@ import random
 import numpy
 import queue
 import heapq
+from tabulate import tabulate
 
+# helper class for displaying data
+class Table:
+
+    def __init__(self):
+        self.bigTable = []
+        self.tables = [[]]
+        self.curTable = 0
+
+    def nextTable(self):
+        self.bigTable.append(self.tables[self.curTable])
+        self.tables.append([])
+        self.curTable += 1
+
+    def addToTable(self, *arg):
+        for i in arg:
+            self.tables[self.curTable].append(i)
 
 def onesInList(ls):
     ret = []
@@ -11,7 +28,6 @@ def onesInList(ls):
         if ls[i] != 0:
             ret.append(i)
     return ret
-
 
 def getListAverage(ls):
     return sum(ls) / len(ls)
@@ -33,10 +49,10 @@ class Room:
     def __init__(self, temp, humid):
         self.temp = temp
         self.humid = humid
-        
+
     def setTemp(self, value):
         self.temp = value
-        
+
     def setHumid(self, value):
         self.humid = value
 
@@ -49,7 +65,7 @@ class Room:
     def getOptDifference(self, optTemp, optHumid):
         return abs(optTemp - self.temp) + abs(optHumid - self.humid)
 
-        
+
 class Building:
     def __init__(self, edges):
         self.numRooms = 12
@@ -76,14 +92,20 @@ class Building:
             self.edgeMatrix[int(e[1]) - 1][int(e[0]) - 1] = int(e[2])
 
     def display(self):
-        # print("roomList len = " + str(len(self.roomList)))
-        print("avg temp: " + str(self.getAvgTemp()))
-        print("std dev temp: " + str(self.getStdDevTemp()))
-        print("avg humid: " + str(self.getAvgHumid()))
-        print("std dev humid: " + str(self.getStdDevHumid()))
-        print("rooms: ")
+        tablef = Table()
         for index, room in enumerate(self.roomList):
-            print("room: " + str(index + 1) + " temp: " + str(room.temp) + " humid: " + str(room.humid))
+            table.addToTable(index + 1, room.temp, room.humid)
+            table.nextTable()
+        print("FINAL STATE OF ROOMS")
+        print(tabulate(tablef.bigTable, headers=["Room #", "Room Temp", "Room Humidity"], tablefmt="grid"))
+        # print("roomList len = " + str(len(self.roomList)))
+
+        attrList = [self.getAvgTemp(), self.getStdDevTemp(), self.getAvgHumid(), self.getStdDevHumid(),]
+        print(tabulate(attrList, header=["Final Avg Temp", "Final Std Dev Temp", "Final Avg Humid", "Final Std Dev Humid", "Total Rooms Visited", "Total Power Used"]))
+        print("Final Avg Temp: " + str(self.getAvgTemp()))
+        print("Final Std Dev Temp: " + str(self.getStdDevTemp()))
+        print("Final Avg Humid: " + str(self.getAvgHumid()))
+        print("Final Std Dev Humid: " + str(self.getStdDevHumid()))
 
     def isOpt(self):
         avgTemp = self.getAvgTemp()
@@ -163,7 +185,7 @@ class Building:
         #         self.roomList[room].setHumid(self.optHumid)
 
 
-def main():
+def run():
     f = open("HeatMiserHeuristic.txt", "r")
     file = f.read()
     lines = file.split("\n")
@@ -173,17 +195,35 @@ def main():
     info.pop(0)
 
     b = Building(info)
+    # print out initial state of rooms for the run
+    table = Table()
+    for index, room in enumerate(b.roomList):
+        table.addToTable(index + 1, room.temp, room.humid)
+        table.nextTable()
+    print("INITIAL STATE OF ROOMS")
+    print(tabulate(table.bigTable, headers=["Room #", "Room Temp", "Room Humidity"], tablefmt="grid"))
+
     count = 0
+    totalPower = 0
+    totalVisit = 0
     while not b.isOpt():
+        table2 = Table()
         maxDifRoom = b.getMaxDifRoom()
         miserLocation = b.getRandomRoom()
         count += 1
+        table2.addToTable(count)
+        table2.addToTable(miserLocation)
         visited = []
         frontier = []
-        heapq.heappush(frontier, (0, miserLocation))
+        heapq.heappush(frontier, (1, miserLocation))
+        searchCost = 0
+        searchCount = 0
         while frontier:
+            searchCount += 1
             oldMiser = miserLocation
-            miserLocation = heapq.heappop(frontier)[1]
+            popped = heapq.heappop(frontier)
+            miserLocation = popped[1]
+            searchCost = 1 / popped[0]
             if miserLocation == maxDifRoom:
                 break
             visited.append(miserLocation)
@@ -191,10 +231,24 @@ def main():
             for n in neighbors:
                 if n not in visited and n not in frontier:
                     heapq.heappush(frontier, (1.0 / b.getEdge(oldMiser, n), n))
-
+        table2.addToTable(miserLocation, searchCount - 1, searchCost - 1, b.getAvgTemp(), b.getStdDevTemp(), b.getAvgHumid(), b.getStdDevHumid())
+        table2.nextTable()
+        print(tabulate(table2.bigTable, headers=["Run #", "Start Room", "Final Room", "Rooms Visited", "Search Cost", "New Avg Temp", "New Temp Std Dev", "New Avg Humid", "New Humid Std Dev"], tablefmt="grid"))
         b.setRoomOpt(maxDifRoom)
-    print(count)
-    b.display()
+        totalPower += searchCost - 1
+        totalVisit += searchCount - 1
+    tablef = Table()
+    for index, room in enumerate(b.roomList):
+        tablef.addToTable(index + 1, room.temp, room.humid)
+        tablef.nextTable()
+    print("FINAL STATE OF ROOMS")
+    print(tabulate(tablef.bigTable, headers=["Room #", "Room Temp", "Room Humidity"], tablefmt="grid"))
+    attrList = [b.getAvgTemp(), b.getStdDevTemp(), b.getAvgHumid(), b.getStdDevHumid(), totalVisit, totalPower]
+    print(tabulate([attrList], headers=["Final Avg Temp", "Final Std Dev Temp", "Final Avg Humid", "Final Std Dev Humid", "Total Rooms Visited", "Total Power Used"]))
+
+def main():
+    run()
+    return
 
 
 if __name__ == "__main__":
