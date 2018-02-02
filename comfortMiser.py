@@ -4,6 +4,7 @@ import numpy
 import queue
 import heapq
 from tabulate import tabulate
+import sys
 
 # helper class for displaying data
 class Table:
@@ -45,6 +46,34 @@ def getAdjustForOptAvg(avg, optAvg, numItems):
     return numItems * optAvg - avg * numItems
 
 
+class StrategyBFS:
+    def __init__(self):
+        self.frontier = queue.Queue()
+
+    def getFromFrontier(self):
+        return self.frontier.get()
+
+    def addToFrontier(self, prio, item):
+        self.frontier.put((prio, item))
+
+    def isEmpty(self):
+        return self.frontier.empty()
+
+
+class StrategyGreedyBestFirst:
+    def __init__(self):
+        self.frontier = []
+
+    def getFromFrontier(self):
+        return heapq.heappop(self.frontier)
+
+    def addToFrontier(self, prio, item):
+        heapq.heappush(self.frontier, (prio, item))
+
+    def isEmpty(self):
+        return not self.frontier
+
+
 class Room:
     def __init__(self, temp, humid):
         self.temp = temp
@@ -75,8 +104,8 @@ class Building:
         self.minHumid = 45
         self.maxHumid = 55
         self.optHumid = 47
-        self.tempStdDev = 1.75
-        self.humidStdDev = 1.5
+        self.tempStdDev = 1.5
+        self.humidStdDev = 1.75
 
         self.roomList = []
         for i in range(self.numRooms):
@@ -91,21 +120,21 @@ class Building:
             self.edgeMatrix[int(e[0]) - 1][int(e[1]) - 1] = int(e[2])
             self.edgeMatrix[int(e[1]) - 1][int(e[0]) - 1] = int(e[2])
 
-    def display(self):
-        tablef = Table()
-        for index, room in enumerate(self.roomList):
-            table.addToTable(index + 1, room.temp, room.humid)
-            table.nextTable()
-        print("FINAL STATE OF ROOMS")
-        print(tabulate(tablef.bigTable, headers=["Room #", "Room Temp", "Room Humidity"], tablefmt="grid"))
-        # print("roomList len = " + str(len(self.roomList)))
-
-        attrList = [self.getAvgTemp(), self.getStdDevTemp(), self.getAvgHumid(), self.getStdDevHumid(),]
-        print(tabulate(attrList, header=["Final Avg Temp", "Final Std Dev Temp", "Final Avg Humid", "Final Std Dev Humid", "Total Rooms Visited", "Total Power Used"]))
-        print("Final Avg Temp: " + str(self.getAvgTemp()))
-        print("Final Std Dev Temp: " + str(self.getStdDevTemp()))
-        print("Final Avg Humid: " + str(self.getAvgHumid()))
-        print("Final Std Dev Humid: " + str(self.getStdDevHumid()))
+    # def display(self):
+    #     tablef = Table()
+    #     for index, room in enumerate(self.roomList):
+    #         table.addToTable(index + 1, room.temp, room.humid)
+    #         table.nextTable()
+    #     print("FINAL STATE OF ROOMS")
+    #     print(tabulate(tablef.bigTable, headers=["Room #", "Room Temp", "Room Humidity"], tablefmt="grid"))
+    #     # print("roomList len = " + str(len(self.roomList)))
+    #
+    #     attrList = [self.getAvgTemp(), self.getStdDevTemp(), self.getAvgHumid(), self.getStdDevHumid(),]
+    #     print(tabulate(attrList, header=["Final Avg Temp", "Final Std Dev Temp", "Final Avg Humid", "Final Std Dev Humid", "Total Rooms Visited", "Total Power Used"]))
+    #     print("Final Avg Temp: " + str(self.getAvgTemp()))
+    #     print("Final Std Dev Temp: " + str(self.getStdDevTemp()))
+    #     print("Final Avg Humid: " + str(self.getAvgHumid()))
+    #     print("Final Std Dev Humid: " + str(self.getStdDevHumid()))
 
     def isOpt(self):
         avgTemp = self.getAvgTemp()
@@ -157,33 +186,6 @@ class Building:
         self.roomList[room].setTemp(self.optTemp)
         self.roomList[room].setHumid(self.optHumid)
 
-        # avgTemp = self.getAvgTemp()
-        # avgHumid = self.getAvgHumid()
-        # stdDevTemp = self.getStdDevTemp()
-        # stdDevHumid = self.getStdDevHumid()
-        # avgTempGood = inRange(avgTemp, self.optTemp)
-        # avgHumidGood = inRange(avgHumid, self.optHumid)
-        # stdDevTempGood = stdDevTemp < self.tempStdDev + 0.1
-        # stdDevHumidGood = stdDevHumid < self.humidStdDev + 0.01
-        # # if the temperature measures are not correct, change this room
-        # if not (avgTempGood and stdDevTempGood):
-        #     # if the std dev is in range, adjust room base on current avg
-        #     if stdDevTempGood:
-        #         # NOTE!!!!!!!!!! This will over adjust!!!!
-        #         self.roomList[room].adjustTemp(getAdjustForOptAvg(avgTemp, self.optTemp, self.numRooms))
-        #     # otherwise move temperature closer to desired average
-        #     else:
-        #         self.roomList[room].setTemp(self.optTemp)
-        # # otherwise, change the humidity
-        # elif not (avgHumidGood and stdDevHumidGood):
-        #     # if the std dev is in range, adjust room base on current avg
-        #     if stdDevHumidGood:
-        #         # NOTE!!!!!!!!!! This will over adjust!!!!
-        #         self.roomList[room].adjustHumid(getAdjustForOptAvg(avgHumid, self.optHumid, self.numRooms))
-        #     # otherwise move humidity closer to desired average
-        #     else:
-        #         self.roomList[room].setHumid(self.optHumid)
-
 
 def run():
     f = open("HeatMiserHeuristic.txt", "r")
@@ -193,6 +195,18 @@ def run():
     for l in lines:
         info.append(l.split())
     info.pop(0)
+
+    if !(len(sys.argv) == 2):
+        print("Error: invalid number of command line arguments; expected 2.")
+        return
+
+    if sys.argv[1] == "bfs":
+        strategy = StrategyBFS()
+    elif sys.argv[1] == "greedy":
+        strategy = StrategyGreedyBestFirst()
+    else:
+        print("not a valid strategy")
+        return
 
     b = Building(info)
     # print out initial state of rooms for the run
@@ -206,31 +220,32 @@ def run():
     count = 0
     totalPower = 0
     totalVisit = 0
+    miserLocation = b.getRandomRoom()
     while not b.isOpt():
         table2 = Table()
         maxDifRoom = b.getMaxDifRoom()
-        miserLocation = b.getRandomRoom()
         count += 1
         table2.addToTable(count)
         table2.addToTable(miserLocation)
         visited = []
         frontier = []
-        heapq.heappush(frontier, (1, miserLocation))
         searchCost = 0
         searchCount = 0
+        strategy.addToFrontier(1, miserLocation)
         while frontier:
             searchCount += 1
             oldMiser = miserLocation
-            popped = heapq.heappop(frontier)
+            popped = strategy.getFromFrontier()
             miserLocation = popped[1]
             searchCost = 1 / popped[0]
+
             if miserLocation == maxDifRoom:
                 break
             visited.append(miserLocation)
             neighbors = b.getNeighbors(miserLocation)
             for n in neighbors:
                 if n not in visited and n not in frontier:
-                    heapq.heappush(frontier, (1.0 / b.getEdge(oldMiser, n), n))
+                    strategy.addToFrontier(1.0 / b.getEdge(oldMiser, n), n)
         table2.addToTable(miserLocation, searchCount - 1, searchCost - 1, b.getAvgTemp(), b.getStdDevTemp(), b.getAvgHumid(), b.getStdDevHumid())
         table2.nextTable()
         print(tabulate(table2.bigTable, headers=["Run #", "Start Room", "Final Room", "Rooms Visited", "Search Cost", "New Avg Temp", "New Temp Std Dev", "New Avg Humid", "New Humid Std Dev"], tablefmt="grid"))
