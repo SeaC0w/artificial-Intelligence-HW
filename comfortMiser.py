@@ -196,16 +196,15 @@ def run():
         info.append(l.split())
     info.pop(0)
 
-    if !(len(sys.argv) == 2):
+    if not len(sys.argv) == 2:
         print("Error: invalid number of command line arguments; expected 2.")
         return
-
-    if sys.argv[1] == "bfs":
+    elif sys.argv[1] == "bfs":
         strategy = StrategyBFS()
     elif sys.argv[1] == "greedy":
         strategy = StrategyGreedyBestFirst()
     else:
-        print("not a valid strategy")
+        print("Invalid search strategy")
         return
 
     b = Building(info)
