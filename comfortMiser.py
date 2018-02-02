@@ -183,9 +183,9 @@ def main():
 
     b = Building(info)
     count = 0
+    miserLocation = b.getRandomRoom()
     while not b.isOpt():
         maxDifRoom = b.getMaxDifRoom()
-        miserLocation = b.getRandomRoom()
         count += 1
         visited = []
         frontier = []
