@@ -57,6 +57,9 @@ class Strategy:
     def inFrontier(self, r):
         return r in self.frontier
 
+    def restart(self):
+        self.frontier = []
+
 
 class StrategyBFS(Strategy):
     def getFromFrontier(self):
@@ -233,6 +236,7 @@ def run():
         b.setRoomOpt(maxDifRoom)
         totalPower += searchCost - 1
         totalVisit += searchCount - 1
+        strategy.restart()
     tablef = Table()
     for index, room in enumerate(b.roomList):
         tablef.addToTable(index + 1, room.temp, room.humid)
