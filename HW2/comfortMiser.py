@@ -55,7 +55,7 @@ class Strategy:
         return not self.frontier
 
     def inFrontier(self, r):
-        return r in self.frontier
+        return r in map(lambda i: i[1], self.frontier)
 
     def restart(self):
         self.frontier = []
@@ -121,7 +121,6 @@ class Building:
 
         for e in edges:
             self.edgeMatrix[int(e[0]) - 1][int(e[1]) - 1] = int(e[2])
-            self.edgeMatrix[int(e[1]) - 1][int(e[0]) - 1] = int(e[2])
 
     def isOpt(self):
         avgTemp = self.getAvgTemp()
@@ -218,15 +217,15 @@ def run(strat):
             searchCount += 1
             popped = strategy.getFromFrontier()
             miserLocation = popped[1]
-            searchCost += 1 / popped[0]
+            searchCost += popped[0]
 
             if miserLocation == maxDifRoom:
                 break
             visited.append(miserLocation)
             neighbors = b.getNeighbors(miserLocation)
             for n in neighbors:
-                if n not in visited and not strategy.inFrontier(n):
-                    strategy.addToFrontier(1.0 / b.getEdge(miserLocation, n), n)
+                if (n not in visited) and (not strategy.inFrontier(n)):
+                    strategy.addToFrontier(b.getEdge(miserLocation, n), n)
         table2.addToTable(miserLocation, searchCount - 1, searchCost - 1, b.getAvgTemp(), b.getStdDevTemp(), b.getAvgHumid(), b.getStdDevHumid())
         table2.nextTable()
         print(tabulate(table2.bigTable, headers=["Run #", "Start Room", "Final Room", "Rooms Visited", "Search Cost", "New Avg Temp", "New Temp Std Dev", "New Avg Humid", "New Humid Std Dev"], tablefmt="grid"))
@@ -243,6 +242,7 @@ def run(strat):
     attrList = [b.getAvgTemp(), b.getStdDevTemp(), b.getAvgHumid(), b.getStdDevHumid(), totalVisit, totalPower]
     print(tabulate([attrList], headers=["Final Avg Temp", "Final Std Dev Temp", "Final Avg Humid", "Final Std Dev Humid", "Total Rooms Visited", "Total Power Used"]))
     return attrList
+
 
 def main():
     if not len(sys.argv) == 2:
