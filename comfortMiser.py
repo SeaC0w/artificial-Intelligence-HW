@@ -3,6 +3,7 @@ import random
 import numpy
 import queue
 import heapq
+import sys
 
 
 def onesInList(ls):
@@ -27,6 +28,34 @@ def inRange(num, opt):
 
 def getAdjustForOptAvg(avg, optAvg, numItems):
     return numItems * optAvg - avg * numItems
+
+
+class StrategyBFS:
+    def __init__(self):
+        self.frontier = queue.Queue()
+
+    def getFromFrontier(self):
+        return self.frontier.get()
+
+    def addToFrontier(self, prio, item):
+        self.frontier.put(item)
+
+    def isEmpty(self):
+        return self.frontier.empty()
+
+
+class StrategyGreedyBestFirst:
+    def __init__(self):
+        self.frontier = []
+
+    def getFromFrontier(self):
+        return heapq.heappop(self.frontier)[1]
+
+    def addToFrontier(self, prio, item):
+        heapq.heappush(self.frontier, (prio, item))
+
+    def isEmpty(self):
+        return not self.frontier
 
 
 class Room:
@@ -59,8 +88,8 @@ class Building:
         self.minHumid = 45
         self.maxHumid = 55
         self.optHumid = 47
-        self.tempStdDev = 1.75
-        self.humidStdDev = 1.5
+        self.tempStdDev = 1.5
+        self.humidStdDev = 1.75
 
         self.roomList = []
         for i in range(self.numRooms):
@@ -76,7 +105,6 @@ class Building:
             self.edgeMatrix[int(e[1]) - 1][int(e[0]) - 1] = int(e[2])
 
     def display(self):
-        # print("roomList len = " + str(len(self.roomList)))
         print("avg temp: " + str(self.getAvgTemp()))
         print("std dev temp: " + str(self.getStdDevTemp()))
         print("avg humid: " + str(self.getAvgHumid()))
@@ -135,33 +163,6 @@ class Building:
         self.roomList[room].setTemp(self.optTemp)
         self.roomList[room].setHumid(self.optHumid)
 
-        # avgTemp = self.getAvgTemp()
-        # avgHumid = self.getAvgHumid()
-        # stdDevTemp = self.getStdDevTemp()
-        # stdDevHumid = self.getStdDevHumid()
-        # avgTempGood = inRange(avgTemp, self.optTemp)
-        # avgHumidGood = inRange(avgHumid, self.optHumid)
-        # stdDevTempGood = stdDevTemp < self.tempStdDev + 0.1
-        # stdDevHumidGood = stdDevHumid < self.humidStdDev + 0.01
-        # # if the temperature measures are not correct, change this room
-        # if not (avgTempGood and stdDevTempGood):
-        #     # if the std dev is in range, adjust room base on current avg
-        #     if stdDevTempGood:
-        #         # NOTE!!!!!!!!!! This will over adjust!!!!
-        #         self.roomList[room].adjustTemp(getAdjustForOptAvg(avgTemp, self.optTemp, self.numRooms))
-        #     # otherwise move temperature closer to desired average
-        #     else:
-        #         self.roomList[room].setTemp(self.optTemp)
-        # # otherwise, change the humidity
-        # elif not (avgHumidGood and stdDevHumidGood):
-        #     # if the std dev is in range, adjust room base on current avg
-        #     if stdDevHumidGood:
-        #         # NOTE!!!!!!!!!! This will over adjust!!!!
-        #         self.roomList[room].adjustHumid(getAdjustForOptAvg(avgHumid, self.optHumid, self.numRooms))
-        #     # otherwise move humidity closer to desired average
-        #     else:
-        #         self.roomList[room].setHumid(self.optHumid)
-
 
 def main():
     f = open("HeatMiserHeuristic.txt", "r")
@@ -172,6 +173,14 @@ def main():
         info.append(l.split())
     info.pop(0)
 
+    if sys.argv[1] == "bfs":
+        strategy = StrategyBFS()
+    elif sys.argv[1] == "greedy":
+        strategy = StrategyGreedyBestFirst()
+    else:
+        print("not a valid strategy")
+        return
+
     b = Building(info)
     count = 0
     while not b.isOpt():
@@ -180,19 +189,20 @@ def main():
         count += 1
         visited = []
         frontier = []
-        heapq.heappush(frontier, (0, miserLocation))
+        strategy.addToFrontier(0, miserLocation)
         while frontier:
             oldMiser = miserLocation
-            miserLocation = heapq.heappop(frontier)[1]
+            miserLocation = strategy.getFromFrontier()
             if miserLocation == maxDifRoom:
                 break
             visited.append(miserLocation)
             neighbors = b.getNeighbors(miserLocation)
             for n in neighbors:
                 if n not in visited and n not in frontier:
-                    heapq.heappush(frontier, (1.0 / b.getEdge(oldMiser, n), n))
+                    strategy.addToFrontier(1.0 / b.getEdge(oldMiser, n), n)
 
         b.setRoomOpt(maxDifRoom)
+
     print(count)
     b.display()
 
