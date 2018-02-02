@@ -1,12 +1,14 @@
+# by Kerim Celik and Julia Connelly for AI, 02/02/2018
 import random
 import numpy
 import queue
+import heapq
 
 
 def onesInList(ls):
     ret = []
     for i in range(len(ls)):
-        if ls[i] == 1:
+        if ls[i] != 0:
             ret.append(i)
     return ret
 
@@ -71,16 +73,17 @@ class Building:
 
         for e in edges:
             self.edgeMatrix[int(e[0]) - 1][int(e[1]) - 1] = int(e[2])
+            self.edgeMatrix[int(e[1]) - 1][int(e[0]) - 1] = int(e[2])
 
     def display(self):
-        rooms = list(map(lambda r: "temp: " + str(r.temp) + " humid: " + str(r.humid), self.roomList))
+        # print("roomList len = " + str(len(self.roomList)))
         print("avg temp: " + str(self.getAvgTemp()))
         print("std dev temp: " + str(self.getStdDevTemp()))
         print("avg humid: " + str(self.getAvgHumid()))
         print("std dev humid: " + str(self.getStdDevHumid()))
         print("rooms: ")
-        for r in rooms:
-            print(r)
+        for index, room in enumerate(self.roomList):
+            print("room: " + str(index + 1) + " temp: " + str(room.temp) + " humid: " + str(room.humid))
 
     def isOpt(self):
         avgTemp = self.getAvgTemp()
@@ -93,6 +96,16 @@ class Building:
         stdDevHumidGood = stdDevHumid < self.humidStdDev + 0.01
         return avgTempGood and stdDevTempGood and avgHumidGood and stdDevHumidGood
 
+    def getMaxDifRoom(self):
+        maxRoom = -1
+        maxVal = 0
+        for i, r in enumerate(self.roomList):
+            dif = r.getOptDifference(self.optTemp, self.optHumid)
+            if dif > maxVal:
+                maxVal = dif
+                maxRoom = i
+        return maxRoom
+
     def getNeighbors(self, roomIndex):
         return onesInList(self.edgeMatrix[roomIndex])
 
@@ -100,11 +113,11 @@ class Building:
         return random.randint(0, self.numRooms - 1)
 
     def getAvgTemp(self):
-        temps = map(lambda r : r.temp, self.roomList)
+        temps = map(lambda r: r.temp, self.roomList)
         return getListAverage(list(temps))
 
     def getAvgHumid(self):
-        humids = map(lambda r : r.humid, self.roomList)
+        humids = map(lambda r: r.humid, self.roomList)
         return getListAverage(list(humids))
 
     def getStdDevTemp(self):
@@ -115,8 +128,8 @@ class Building:
         humids = map(lambda r: r.humid, self.roomList)
         return getListStdDev(list(humids))
 
-    def getOptDifference(self, room):
-        return self.roomList[room].getOptDifference(self.optTemp, self.optHumid)
+    def getEdge(self, roomA, roomB):
+        return self.edgeMatrix[roomA][roomB]
 
     def setRoomOpt(self, room):
         self.roomList[room].setTemp(self.optTemp)
@@ -158,33 +171,30 @@ def main():
     for l in lines:
         info.append(l.split())
     info.pop(0)
+
     b = Building(info)
     count = 0
     while not b.isOpt():
-        count += 1
+        maxDifRoom = b.getMaxDifRoom()
         miserLocation = b.getRandomRoom()
-        maxDifSeen = 0
-        maxDifIndex = miserLocation
-
+        count += 1
         visited = []
-        frontier = queue.Queue()
-        frontier.put(miserLocation)
-        while not frontier.empty():
-            miserLocation = frontier.get()
-            dif = b.getOptDifference(miserLocation)
-            if dif > maxDifSeen:
-                maxDifSeen = dif
-                maxDifIndex = miserLocation
+        frontier = []
+        heapq.heappush(frontier, (0, miserLocation))
+        while frontier:
+            oldMiser = miserLocation
+            miserLocation = heapq.heappop(frontier)[1]
+            if miserLocation == maxDifRoom:
+                break
             visited.append(miserLocation)
             neighbors = b.getNeighbors(miserLocation)
             for n in neighbors:
-                if n not in visited:
-                    frontier.put(n)
+                if n not in visited and n not in frontier:
+                    heapq.heappush(frontier, (1.0 / b.getEdge(oldMiser, n), n))
 
-        b.setRoomOpt(maxDifIndex)
-
+        b.setRoomOpt(maxDifRoom)
     print(count)
-    print(b.display())
+    b.display()
 
 
 if __name__ == "__main__":
