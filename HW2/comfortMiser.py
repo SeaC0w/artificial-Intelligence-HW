@@ -174,7 +174,7 @@ class Building:
         self.roomList[room].setHumid(self.optHumid)
 
 
-def run():
+def run(strat):
     f = open("HeatMiserHeuristic.txt", "r")
     file = f.read()
     lines = file.split("\n")
@@ -183,15 +183,12 @@ def run():
         info.append(l.split())
     info.pop(0)
 
-    if not len(sys.argv) == 2:
-        print("Error: invalid number of command line arguments; expected 2.")
-        return
-    elif sys.argv[1] == "bfs":
+    if strat == 0:
         strategy = StrategyBFS()
-    elif sys.argv[1] == "greedy":
+    elif strat == 1:
         strategy = StrategyGreedyBestFirst()
     else:
-        print("Invalid search strategy")
+        print("Something went very wrong.")
         return
 
     b = Building(info)
@@ -245,10 +242,33 @@ def run():
     print(tabulate(tablef.bigTable, headers=["Room #", "Room Temp", "Room Humidity"], tablefmt="grid"))
     attrList = [b.getAvgTemp(), b.getStdDevTemp(), b.getAvgHumid(), b.getStdDevHumid(), totalVisit, totalPower]
     print(tabulate([attrList], headers=["Final Avg Temp", "Final Std Dev Temp", "Final Avg Humid", "Final Std Dev Humid", "Total Rooms Visited", "Total Power Used"]))
-
+    return attrList
 
 def main():
-    run()
+    if not len(sys.argv) == 2:
+        print("Error: invalid number of command line arguments; expected 2.")
+        return
+    elif sys.argv[1] == "bfs":
+        strat = 0
+    elif sys.argv[1] == "greedy":
+        strat = 1
+    else:
+        print("Invalid search strategy")
+        return
+
+    lsVisited = []
+    lsPower = []
+    for i in range(100):
+        print("RUN " + str(i + 1) + " DETAILS")
+        print("------------------------")
+        details = run(strat)
+        lsVisited.append(details[4])
+        lsPower.append(details[5])
+        print("\n")
+    overall = [getListAverage(lsVisited),getListAverage(lsPower),getListStdDev(lsVisited),getListStdDev(lsPower)]
+    print("\n")
+    print("HeatMiser Details over 100 Simulations")
+    print(tabulate([overall], headers=["Overall Average Rooms Visited", "Overall Average Power Used", "Overall Rooms Visited Std Dev", "Overall Power Used Std Dev"], tablefmt='grid'))
     return
 
 
