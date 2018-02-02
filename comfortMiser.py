@@ -196,7 +196,7 @@ def run():
         info.append(l.split())
     info.pop(0)
 
-    if !(len(sys.argv) == 2):
+    if not (len(sys.argv) == 2):
         print("Error: invalid number of command line arguments; expected 2.")
         return
 
@@ -237,7 +237,7 @@ def run():
             oldMiser = miserLocation
             popped = strategy.getFromFrontier()
             miserLocation = popped[1]
-            searchCost = 1 / popped[0]
+            searchCost += 1 / popped[0]
 
             if miserLocation == maxDifRoom:
                 break
