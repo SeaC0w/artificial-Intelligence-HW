@@ -6,9 +6,9 @@ import heapq
 from tabulate import tabulate
 import sys
 
+
 # helper class for displaying data
 class Table:
-
     def __init__(self):
         self.bigTable = []
         self.tables = [[]]
@@ -23,12 +23,14 @@ class Table:
         for i in arg:
             self.tables[self.curTable].append(i)
 
+
 def onesInList(ls):
     ret = []
     for i in range(len(ls)):
         if ls[i] != 0:
             ret.append(i)
     return ret
+
 
 def getListAverage(ls):
     return sum(ls) / len(ls)
@@ -46,32 +48,31 @@ def getAdjustForOptAvg(avg, optAvg, numItems):
     return numItems * optAvg - avg * numItems
 
 
-class StrategyBFS:
-    def __init__(self):
-        self.frontier = queue.Queue()
-
-    def getFromFrontier(self):
-        return self.frontier.get()
-
-    def addToFrontier(self, prio, item):
-        self.frontier.put((prio, item))
-
-    def isEmpty(self):
-        return self.frontier.empty()
-
-
-class StrategyGreedyBestFirst:
+class Strategy:
     def __init__(self):
         self.frontier = []
 
+    def isEmpty(self):
+        return not self.frontier
+
+    def inFrontier(self, r):
+        return r in self.frontier
+
+
+class StrategyBFS(Strategy):
+    def getFromFrontier(self):
+        return self.frontier.pop(0)
+
+    def addToFrontier(self, prio, item):
+        self.frontier.append((prio, item))
+
+
+class StrategyGreedyBestFirst(Strategy):
     def getFromFrontier(self):
         return heapq.heappop(self.frontier)
 
     def addToFrontier(self, prio, item):
         heapq.heappush(self.frontier, (prio, item))
-
-    def isEmpty(self):
-        return not self.frontier
 
 
 class Room:
@@ -119,22 +120,6 @@ class Building:
         for e in edges:
             self.edgeMatrix[int(e[0]) - 1][int(e[1]) - 1] = int(e[2])
             self.edgeMatrix[int(e[1]) - 1][int(e[0]) - 1] = int(e[2])
-
-    # def display(self):
-    #     tablef = Table()
-    #     for index, room in enumerate(self.roomList):
-    #         table.addToTable(index + 1, room.temp, room.humid)
-    #         table.nextTable()
-    #     print("FINAL STATE OF ROOMS")
-    #     print(tabulate(tablef.bigTable, headers=["Room #", "Room Temp", "Room Humidity"], tablefmt="grid"))
-    #     # print("roomList len = " + str(len(self.roomList)))
-    #
-    #     attrList = [self.getAvgTemp(), self.getStdDevTemp(), self.getAvgHumid(), self.getStdDevHumid(),]
-    #     print(tabulate(attrList, header=["Final Avg Temp", "Final Std Dev Temp", "Final Avg Humid", "Final Std Dev Humid", "Total Rooms Visited", "Total Power Used"]))
-    #     print("Final Avg Temp: " + str(self.getAvgTemp()))
-    #     print("Final Std Dev Temp: " + str(self.getStdDevTemp()))
-    #     print("Final Avg Humid: " + str(self.getAvgHumid()))
-    #     print("Final Std Dev Humid: " + str(self.getStdDevHumid()))
 
     def isOpt(self):
         avgTemp = self.getAvgTemp()
@@ -208,6 +193,7 @@ def run():
         return
 
     b = Building(info)
+
     # print out initial state of rooms for the run
     table = Table()
     for index, room in enumerate(b.roomList):
@@ -224,27 +210,24 @@ def run():
         table2 = Table()
         maxDifRoom = b.getMaxDifRoom()
         count += 1
-        table2.addToTable(count)
-        table2.addToTable(miserLocation)
+        table2.addToTable(count, miserLocation)
         visited = []
-        frontier = []
         searchCost = 0
         searchCount = 0
         strategy.addToFrontier(1, miserLocation)
-        while frontier:
+        while not strategy.isEmpty():
             searchCount += 1
-            oldMiser = miserLocation
             popped = strategy.getFromFrontier()
             miserLocation = popped[1]
-            searchCost = 1 / popped[0]
+            searchCost += 1 / popped[0]
 
             if miserLocation == maxDifRoom:
                 break
             visited.append(miserLocation)
             neighbors = b.getNeighbors(miserLocation)
             for n in neighbors:
-                if n not in visited and n not in frontier:
-                    strategy.addToFrontier(1.0 / b.getEdge(oldMiser, n), n)
+                if n not in visited and not strategy.inFrontier(n):
+                    strategy.addToFrontier(1.0 / b.getEdge(miserLocation, n), n)
         table2.addToTable(miserLocation, searchCount - 1, searchCost - 1, b.getAvgTemp(), b.getStdDevTemp(), b.getAvgHumid(), b.getStdDevHumid())
         table2.nextTable()
         print(tabulate(table2.bigTable, headers=["Run #", "Start Room", "Final Room", "Rooms Visited", "Search Cost", "New Avg Temp", "New Temp Std Dev", "New Avg Humid", "New Humid Std Dev"], tablefmt="grid"))
