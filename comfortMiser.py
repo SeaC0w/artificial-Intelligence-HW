@@ -1,7 +1,6 @@
 # by Kerim Celik and Julia Connelly for AI, 02/02/2018
 import random
 import numpy
-import queue
 import heapq
 from tabulate import tabulate
 import sys
@@ -242,6 +241,7 @@ def run():
     print(tabulate(tablef.bigTable, headers=["Room #", "Room Temp", "Room Humidity"], tablefmt="grid"))
     attrList = [b.getAvgTemp(), b.getStdDevTemp(), b.getAvgHumid(), b.getStdDevHumid(), totalVisit, totalPower]
     print(tabulate([attrList], headers=["Final Avg Temp", "Final Std Dev Temp", "Final Avg Humid", "Final Std Dev Humid", "Total Rooms Visited", "Total Power Used"]))
+
 
 def main():
     run()
