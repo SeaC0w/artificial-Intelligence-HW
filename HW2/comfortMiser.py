@@ -198,8 +198,8 @@ def run(strat):
     for index, room in enumerate(b.roomList):
         table.addToTable(index + 1, room.temp, room.humid)
         table.nextTable()
-    print("INITIAL STATE OF ROOMS")
-    print(tabulate(table.bigTable, headers=["Room #", "Room Temp", "Room Humidity"], tablefmt="grid"))
+    # print("INITIAL STATE OF ROOMS")
+    # print(tabulate(table.bigTable, headers=["Room #", "Room Temp", "Room Humidity"], tablefmt="grid"))
 
     count = 0
     totalPower = 0
@@ -218,18 +218,20 @@ def run(strat):
             searchCount += 1
             popped = strategy.getFromFrontier()
             miserLocation = popped[1]
-            searchCost += 1 / popped[0]
-
+            # searchCost += 1 / popped[0]
+            searchCost += popped[0]
             if miserLocation == maxDifRoom:
                 break
             visited.append(miserLocation)
             neighbors = b.getNeighbors(miserLocation)
             for n in neighbors:
                 if n not in visited and not strategy.inFrontier(n):
-                    strategy.addToFrontier(1.0 / b.getEdge(miserLocation, n), n)
+                    # strategy.addToFrontier(1.0 / b.getEdge(miserLocation, n), n)
+                    strategy.addToFrontier(b.getEdge(miserLocation, n), n)
+            print(strategy.frontier)
         table2.addToTable(miserLocation, searchCount - 1, searchCost - 1, b.getAvgTemp(), b.getStdDevTemp(), b.getAvgHumid(), b.getStdDevHumid())
         table2.nextTable()
-        print(tabulate(table2.bigTable, headers=["Run #", "Start Room", "Final Room", "Rooms Visited", "Search Cost", "New Avg Temp", "New Temp Std Dev", "New Avg Humid", "New Humid Std Dev"], tablefmt="grid"))
+        # print(tabulate(table2.bigTable, headers=["Run #", "Start Room", "Final Room", "Rooms Visited", "Search Cost", "New Avg Temp", "New Temp Std Dev", "New Avg Humid", "New Humid Std Dev"], tablefmt="grid"))
         b.setRoomOpt(maxDifRoom)
         totalPower += searchCost - 1
         totalVisit += searchCount - 1
@@ -238,10 +240,10 @@ def run(strat):
     for index, room in enumerate(b.roomList):
         tablef.addToTable(index + 1, room.temp, room.humid)
         tablef.nextTable()
-    print("FINAL STATE OF ROOMS")
-    print(tabulate(tablef.bigTable, headers=["Room #", "Room Temp", "Room Humidity"], tablefmt="grid"))
+    # print("FINAL STATE OF ROOMS")
+    # print(tabulate(tablef.bigTable, headers=["Room #", "Room Temp", "Room Humidity"], tablefmt="grid"))
     attrList = [b.getAvgTemp(), b.getStdDevTemp(), b.getAvgHumid(), b.getStdDevHumid(), totalVisit, totalPower]
-    print(tabulate([attrList], headers=["Final Avg Temp", "Final Std Dev Temp", "Final Avg Humid", "Final Std Dev Humid", "Total Rooms Visited", "Total Power Used"]))
+    # print(tabulate([attrList], headers=["Final Avg Temp", "Final Std Dev Temp", "Final Avg Humid", "Final Std Dev Humid", "Total Rooms Visited", "Total Power Used"]))
     return attrList
 
 def main():
