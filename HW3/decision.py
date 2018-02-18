@@ -1,4 +1,5 @@
 from sklearn import tree
+from sklearn import cluster
 
 
 SAFE = 'Safe'
@@ -21,6 +22,15 @@ def parse_input():
         if w == 'Non-Compliant':
             oshaLines[i] = NON_COMPLIANT
     return noIdLines, oshaLines
+
+
+def parse_input_clustering():
+    f = open('HW3_Data.txt', 'r')
+    file = f.read()
+    lines = file.split('\n')
+    lines.pop(0)
+    splitLines = [l.split() for l in lines]
+    return [l[1:3] for l in splitLines]
 
 
 def split_data(data, osha):
@@ -53,7 +63,7 @@ def count_osha_equal(arr1, arr2):
     return eCount
 
 
-def main():
+def decision_tree():
     data, osha = parse_input()
     splitData, splitOsha = split_data(data, osha)
 
@@ -83,6 +93,16 @@ def main():
         for k, v in precision.items():
             print('- ' + k + ': ' + str(v))
         print()
+
+
+def k_means_clustering():
+    kmeans = cluster.KMeans(n_clusters=3, random_state=0).fit(parse_input_clustering())
+    print(kmeans.cluster_centers_)
+
+
+def main():
+    decision_tree()
+    k_means_clustering()
 
 
 if __name__ == '__main__':
