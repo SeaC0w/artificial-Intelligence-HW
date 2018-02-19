@@ -44,7 +44,7 @@ def parse_input():
             l[0] = 2
     oshaLines = [l[-1] for l in splitLines]
     for i, w in enumerate(oshaLines):
-        if w == 'Non-Compliant':
+        if w == NON_COMPLIANT2:
             oshaLines[i] = NON_COMPLIANT
     return noIdLines, oshaLines
 
@@ -61,12 +61,13 @@ def parse_input_clustering():
             l[i] = float(p)
     return finalLines, [l[-1] for l in lines]
 
+
 def parse_input_test():
     f = open('HW3_Data.txt', 'r')
     file = f.read()
     lines = file.split('\n')
     lines.pop(0)
-    d = {SAFE: 1, NON_COMPLIANT: 2, NON_COMPLIANT2: 2, COMPLIANT:3}
+    d = {SAFE: 1, NON_COMPLIANT: 2, NON_COMPLIANT2: 2, COMPLIANT: 3}
     splitLines = [l.split() for l in lines]
     finalLines = [l[1:3] for l in splitLines]
     oshaLines = [d[l[-1]] for l in splitLines]
