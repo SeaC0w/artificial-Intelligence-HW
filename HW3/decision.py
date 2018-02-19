@@ -2,7 +2,7 @@ from sklearn import tree
 from sklearn import cluster
 import numpy as np
 import plotly
-import plotly.plotly as py
+import plotly.offline as py
 import plotly.graph_objs as go
 
 
@@ -106,6 +106,140 @@ def count_osha_equal(arr1, arr2):
     return eCount
 
 
+def calc_performance(pCount, rCount, eCount):
+    recall = {}
+    precision = {}
+    f1s = {}
+    for t in [SAFE, COMPLIANT, NON_COMPLIANT]:
+        recall[t] = pCount[t] / rCount[t]
+        if pCount[t] == 0:
+            precision[t] = 1.0
+        else:
+            precision[t] = eCount[t] / pCount[t]
+        f1s[t] = 2.0 * ((precision[t] * recall[t]) / (precision[t] + recall[t]))
+    recall[AGG] = sum(list(recall.values())) / 3
+    precision[AGG] = sum(list(precision.values())) / 3
+    f1s[AGG] = sum(list(f1s.values())) / 3
+    return recall, precision, f1s
+
+
+def display_fold(recall, precision, f1s, foldNum, base):
+    title = '' if not base else 'Baseline '
+    print('*************** ' + title + 'Fold #' + str(foldNum) + ' ***************')
+    print('Recall:')
+    for k, v in recall.items():
+        print('- ' + k + ': ' + str(v))
+    print('Precision:')
+    for k, v in precision.items():
+        print('- ' + k + ': ' + str(v))
+    print('F1-Score:')
+    for k, v in f1s.items():
+        print('- ' + k + ': ' + str(v))
+    print('****************************************')
+    print()
+
+
+def display_overall(recallList, precisionList, f1List, base):
+    recallTotal = {SAFE: 0, COMPLIANT: 0, NON_COMPLIANT: 0, AGG: 0}
+    precisionTotal = {SAFE: 0, COMPLIANT: 0, NON_COMPLIANT: 0, AGG: 0}
+    f1Total = {SAFE: 0, COMPLIANT: 0, NON_COMPLIANT: 0, AGG: 0}
+    for label in [SAFE, COMPLIANT, NON_COMPLIANT, AGG]:
+        for d in recallList:
+            recallTotal[label] += d[label]
+        for d in precisionList:
+            precisionTotal[label] += d[label]
+        for d in f1List:
+            f1Total[label] += d[label]
+    title = '' if not base else 'Baseline '
+    start = 'Overall' if not base else 'Baseline Overall'
+    print(title + 'Evaluation over All Folds:')
+    print(start + ' Recall:')
+    for k, v in recallTotal.items():
+        print('- ' + k + ': ' + str(v / 10))
+    print(start + ' Precision:')
+    for k, v in precisionTotal.items():
+        print('- ' + k + ': ' + str(v / 10))
+    print(start + ' F1-Score:')
+    for k, v in f1Total.items():
+        print('- ' + k + ': ' + str(v / 10))
+    print()
+
+
+def plot_baseline(numFolds, recallList, precisionList, f1List, baseRecallList, basePrecisionList, baseF1List):
+    recallLines = []
+    precisionLines = []
+    f1Lines = []
+    recallLines.append(
+        go.Scatter(
+            x=[i for i in range(1, numFolds + 1)],
+            y=[abs(1 - r[AGG]) for r in recallList],
+            name='Recall'
+        )
+    )
+    recallLines.append(
+        go.Scatter(
+            x=[i for i in range(1, numFolds + 1)],
+            y=[abs(1 - r[AGG]) for r in baseRecallList],
+            name='Baseline Recall'
+        )
+    )
+    precisionLines.append(
+        go.Scatter(
+            x=[i for i in range(1, numFolds + 1)],
+            y=[abs(1 - r[AGG]) for r in precisionList],
+            name='Precision'
+        )
+    )
+    precisionLines.append(
+        go.Scatter(
+            x=[i for i in range(1, numFolds + 1)],
+            y=[abs(1 - r[AGG]) for r in basePrecisionList],
+            name='Baseline Precision'
+        )
+    )
+    f1Lines.append(
+        go.Scatter(
+            x=[i for i in range(1, numFolds + 1)],
+            y=[abs(1 - r[AGG]) for r in f1List],
+            name='F1'
+        )
+    )
+    f1Lines.append(
+        go.Scatter(
+            x=[i for i in range(1, numFolds + 1)],
+            y=[abs(1 - r[AGG]) for r in baseF1List],
+            name='Baseline F1'
+        )
+    )
+    fig = dict(
+        data=recallLines,
+        layout=dict(
+            title='Baseline Recall All Classes',
+            xaxis=dict(title='fold #', zeroline=True),
+            yaxis=dict(title='distance from 1', range=[-0.1, 1.3])
+        )
+    )
+    py.plot(fig, filename='recall-baseline.html')
+    fig = dict(
+        data=precisionLines,
+        layout=dict(
+            title='Baseline Precision All Classes',
+            xaxis=dict(title='fold #', zeroline=True),
+            yaxis=dict(title='distance from 1', range=[-0.1, 1.3])
+        )
+    )
+    py.plot(fig, filename='precision-baseline.html')
+    fig = dict(
+        data=f1Lines,
+        layout=dict(
+            title='Baseline F1 All Classes',
+            xaxis=dict(title='fold #', zeroline=True),
+            yaxis=dict(title='distance from 1', range=[-0.1, 1.3])
+        )
+    )
+    py.plot(fig, filename='f1-baseline.html')
+
+
 def decision_tree():
     data, osha = parse_input()
     splitData, splitOsha = split_data(data, osha)
@@ -121,59 +255,39 @@ def decision_tree():
     recallList = []
     precisionList = []
     f1List = []
+    baseRecallList = []
+    basePrecisionList = []
+    baseF1List = []
     for i, (p, r) in enumerate(zip(predictions, splitOsha)):
         pCount = count_osha(p)
         rCount = count_osha(r)
         eCount = count_osha_equal(p, r)
-        recall = {}
-        precision = {}
-        f1s = {}
-        for t in [SAFE, COMPLIANT, NON_COMPLIANT]:
-            recall[t] = pCount[t] / rCount[t]
-            if pCount[t] == 0:
-                precision[t] = 1.0
-            else:
-                precision[t] = eCount[t] / pCount[t]
-            f1s[t] = 2.0 * ((precision[t] * recall[t]) / (precision[t] + recall[t]))
+        recall, precision, f1s = calc_performance(pCount, rCount, eCount)
 
-        recall[AGG] = sum(list(recall.values())) / 3
-        precision[AGG] = sum(list(precision.values())) / 3
-        f1s[AGG] = sum(list(f1s.values())) / 3
-        print('Fold #' + str(i + 1))
-        print('Recall:')
-        for k, v in recall.items():
-            print('- ' + k + ': ' + str(v))
-        print('Precision:')
-        for k, v in precision.items():
-            print('- ' + k + ': ' + str(v))
-        print('F1-Score:')
-        for k, v in f1s.items():
-            print('- ' + k + ': ' + str(v))
-        print()
+        baseline = max(rCount, key=rCount.get)
+        baseECount = count_osha_equal(baseline, r)
+        basePCount = {}
+        for t in [SAFE, COMPLIANT, NON_COMPLIANT]:
+            if t == baseline:
+                basePCount[t] = len(predictions)
+            else:
+                basePCount[t] = 0
+        baseRecall, basePrecision, baseF1 = calc_performance(basePCount, rCount, baseECount)
+
+        display_fold(recall, precision, f1s, i + 1, False)
+        display_fold(baseRecall, basePrecision, baseF1, i + 1, True)
+
         recallList.append(recall)
         precisionList.append(precision)
         f1List.append(f1s)
-    recallTotal = {SAFE: 0, COMPLIANT: 0, NON_COMPLIANT: 0, AGG: 0}
-    precisionTotal = {SAFE: 0, COMPLIANT: 0, NON_COMPLIANT: 0, AGG: 0}
-    f1Total = {SAFE: 0, COMPLIANT: 0, NON_COMPLIANT: 0, AGG: 0}
-    for label in [SAFE, COMPLIANT, NON_COMPLIANT, AGG]:
-        for d in recallList:
-            recallTotal[label] += d[label]
-        for d in precisionList:
-            precisionTotal[label] += d[label]
-        for d in f1List:
-            f1Total[label] += d[label]
-    print('Evaluation over All Folds:')
-    print('Overall Recall:')
-    for k, v in recallTotal.items():
-        print('- ' + k + ': ' + str(v / 10))
-    print('Overall Precision:')
-    for k, v in precisionTotal.items():
-        print('- ' + k + ': ' + str(v / 10))
-    print('Overall F1-Score:')
-    for k, v in f1Total.items():
-        print('- ' + k + ': ' + str(v / 10))
-    print()
+        baseRecallList.append(baseRecall)
+        basePrecisionList.append(basePrecision)
+        baseF1List.append(baseF1)
+
+    display_overall(recallList, precisionList, f1List, False)
+    display_overall(baseRecallList, basePrecisionList, baseF1List, True)
+    plot_baseline(len(predictions), recallList, precisionList, f1List, baseRecallList, basePrecisionList, baseF1List)
+
 
 def get_cluster(clusterNum, labels_array):
     return np.where(labels_array == clusterNum)[0]
@@ -204,7 +318,7 @@ def k_means_clustering(k):
         yaxis=dict(title='speed')
     )
     fig = dict(data=clusters, layout=layout)
-    py.plot(fig, filename='kmeans k = ' + str(k))
+    py.plot(fig, filename='k' + str(k) + '.html')
 
 
 def elbow_method():
@@ -233,9 +347,10 @@ def elbow_method():
         yaxis=dict(title='sse')
     )
     fig = dict(data=data, layout=layout)
-    py.plot(fig, filename='elbow-method')
+    py.plot(fig, filename='elbow-method.html')
 
-def other():
+
+def plot_by_osha():
     rawData, osha = parse_input_test()
     compliant = []
     noncompliant = []
@@ -264,12 +379,12 @@ def other():
     )
     data = [pointsSafe, pointsNon, pointsComp]
     fig = dict(data=data)
-    py.plot(fig, filename='meh')
+    py.plot(fig, filename='plot-by-osha.html')
+
 
 def main():
-    decision_tree()
-    # other()
-    # NOTE!! Running any of the lines below will overwrite graphs stored online in plotly
+    # decision_tree()
+    # plot_by_osha()
     # elbow_method()
     # k_means_clustering(2)
     # k_means_clustering(3)
