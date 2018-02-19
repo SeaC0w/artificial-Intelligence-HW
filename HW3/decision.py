@@ -201,14 +201,14 @@ def plot_baseline(numFolds, recallList, precisionList, f1List, baseRecallList, b
     f1Lines.append(
         go.Scatter(
             x=[i for i in range(1, numFolds + 1)],
-            y=[abs(1 - r[AGG]) for r in f1List],
+            y=[r[AGG] for r in f1List],
             name='F1'
         )
     )
     f1Lines.append(
         go.Scatter(
             x=[i for i in range(1, numFolds + 1)],
-            y=[abs(1 - r[AGG]) for r in baseF1List],
+            y=[r[AGG] for r in baseF1List],
             name='Baseline F1'
         )
     )
@@ -235,7 +235,7 @@ def plot_baseline(numFolds, recallList, precisionList, f1List, baseRecallList, b
         layout=dict(
             title='Baseline F1 All Classes',
             xaxis=dict(title='fold #', zeroline=True),
-            yaxis=dict(title='distance from 1', range=[-0.1, 1.3])
+            yaxis=dict(title='F1', range=[-0.1, 1.3])
         )
     )
     py.plot(fig, filename='f1-baseline.html')
@@ -385,7 +385,7 @@ def plot_by_osha():
 
 def main():
     pass
-    # decision_tree()
+    decision_tree()
     # plot_by_osha()
     # elbow_method()
     # k_means_clustering(2)
