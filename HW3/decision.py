@@ -16,8 +16,8 @@ AGG = 'Aggregate'
 OFFICE = 'Office'
 WAREHOUSE = 'Warehouse'
 SPEED_CUT1 = 20
-SPEED_CUT2 = 20
-SPEED_CUT3 = 20
+SPEED_CUT2 = 40
+SPEED_CUT3 = 60
 DIST_CUT = 100
 
 
