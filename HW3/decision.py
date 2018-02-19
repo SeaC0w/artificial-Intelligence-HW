@@ -383,6 +383,7 @@ def plot_by_osha():
 
 
 def main():
+    pass
     # decision_tree()
     # plot_by_osha()
     # elbow_method()
