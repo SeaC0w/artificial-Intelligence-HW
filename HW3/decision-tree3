@@ -2,7 +2,7 @@ digraph Tree {
 node [shape=box, style="filled, rounded", color="black", fontname=helvetica] ;
 edge [fontname=helvetica] ;
 0 [label=<Speed &le; 1.5<br/>gini = 0.245<br/>samples = 3600<br/>value = [358, 138, 3104]<br/>class = Safe>, fillcolor="#8139e5d8"] ;
-1 [label=<Distance &le; 1.5<br/>gini = 0.012<br/>samples = 3105<br/>value = [10, 8, 3087]<br/>class = Safe>, fillcolor="#8139e5fe"] ;
+1 [label=<Location &le; 0.5<br/>gini = 0.012<br/>samples = 3105<br/>value = [10, 8, 3087]<br/>class = Safe>, fillcolor="#8139e5fe"] ;
 0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
 2 [label=<gini = 0.014<br/>samples = 2508<br/>value = [10, 8, 2490]<br/>class = Safe>, fillcolor="#8139e5fd"] ;
 1 -> 2 ;
@@ -16,7 +16,7 @@ edge [fontname=helvetica] ;
 5 -> 6 ;
 7 [label=<gini = 0.389<br/>samples = 34<br/>value = [25, 0, 9]<br/>class = Compliant>, fillcolor="#e58139a3"] ;
 5 -> 7 ;
-8 [label=<Distance &le; 1.5<br/>gini = 0.372<br/>samples = 172<br/>value = [41, 130, 1]<br/>class = NonCompliant>, fillcolor="#39e581ad"] ;
+8 [label=<Location &le; 0.5<br/>gini = 0.372<br/>samples = 172<br/>value = [41, 130, 1]<br/>class = NonCompliant>, fillcolor="#39e581ad"] ;
 4 -> 8 ;
 9 [label=<Speed &le; 3.5<br/>gini = 0.051<br/>samples = 77<br/>value = [2, 75, 0]<br/>class = NonCompliant>, fillcolor="#39e581f8"] ;
 8 -> 9 ;

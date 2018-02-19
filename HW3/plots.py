@@ -74,7 +74,13 @@ def plot_by_osha():
         name="Compliant"
     )
     data = [pointsSafe, pointsNon, pointsComp]
-    fig = dict(data=data)
+    fig = dict(
+        data=data,
+        layout=dict(
+            title='Osha Classes',
+            xaxis=dict(title='distance'),
+            yaxis=dict(title='speed')
+        ))
     py.plot(fig, filename='plot-by-osha.html')
 
 
@@ -100,7 +106,13 @@ def plot_by_location():
         name="Warehouse"
     )
     data = [officePoints, warehousePoints]
-    fig = dict(data=data)
+    fig = dict(
+        data=data,
+        layout=dict(
+            title='Location',
+            xaxis=dict(title='distance'),
+            yaxis=dict(title='speed')
+        ))
     py.plot(fig, filename='plot-by-loc.html')
 
 
