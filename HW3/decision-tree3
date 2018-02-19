@@ -2,7 +2,7 @@ digraph Tree {
 node [shape=box, style="filled, rounded", color="black", fontname=helvetica] ;
 edge [fontname=helvetica] ;
 0 [label=<Speed &le; 1.5<br/>gini = 0.245<br/>samples = 3600<br/>value = [358, 138, 3104]<br/>class = Safe>, fillcolor="#8139e5d8"] ;
-1 [label=<Location &le; 0.5<br/>gini = 0.012<br/>samples = 3105<br/>value = [10, 8, 3087]<br/>class = Safe>, fillcolor="#8139e5fe"] ;
+1 [label=<Distance &le; 1.5<br/>gini = 0.012<br/>samples = 3105<br/>value = [10, 8, 3087]<br/>class = Safe>, fillcolor="#8139e5fe"] ;
 0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
 2 [label=<gini = 0.014<br/>samples = 2508<br/>value = [10, 8, 2490]<br/>class = Safe>, fillcolor="#8139e5fd"] ;
 1 -> 2 ;
