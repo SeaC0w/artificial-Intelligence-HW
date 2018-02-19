@@ -1,0 +1,25 @@
+digraph Tree {
+node [shape=box, style="filled, rounded", color="black", fontname=helvetica] ;
+edge [fontname=helvetica] ;
+0 [label=<Speed &le; 2.5<br/>gini = 0.253<br/>samples = 3600<br/>value = [359, 154, 3087]<br/>class = Safe>, fillcolor="#8139e5d7"] ;
+1 [label=<Location &le; 0.5<br/>gini = 0.018<br/>samples = 3097<br/>value = [17, 11, 3069]<br/>class = Safe>, fillcolor="#8139e5fd"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label=<Distance &le; 1.5<br/>gini = 0.021<br/>samples = 2501<br/>value = [17, 10, 2474]<br/>class = Safe>, fillcolor="#8139e5fc"] ;
+1 -> 2 ;
+3 [label=<gini = 0.021<br/>samples = 2498<br/>value = [17, 10, 2471]<br/>class = Safe>, fillcolor="#8139e5fc"] ;
+2 -> 3 ;
+4 [label=<gini = 0.0<br/>samples = 3<br/>value = [0, 0, 3]<br/>class = Safe>, fillcolor="#8139e5ff"] ;
+2 -> 4 ;
+5 [label=<Distance &le; 1.5<br/>gini = 0.003<br/>samples = 596<br/>value = [0, 1, 595]<br/>class = Safe>, fillcolor="#8139e5ff"] ;
+1 -> 5 ;
+6 [label=<gini = 0.0<br/>samples = 6<br/>value = [0, 0, 6]<br/>class = Safe>, fillcolor="#8139e5ff"] ;
+5 -> 6 ;
+7 [label=<gini = 0.003<br/>samples = 590<br/>value = [0, 1, 589]<br/>class = Safe>, fillcolor="#8139e5ff"] ;
+5 -> 7 ;
+8 [label=<Distance &le; 1.5<br/>gini = 0.456<br/>samples = 503<br/>value = [342, 143, 18]<br/>class = Compliant>, fillcolor="#e581398d"] ;
+0 -> 8 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+9 [label=<gini = 0.366<br/>samples = 378<br/>value = [290, 80, 8]<br/>class = Compliant>, fillcolor="#e58139b4"] ;
+8 -> 9 ;
+10 [label=<gini = 0.567<br/>samples = 125<br/>value = [52, 63, 10]<br/>class = NonCompliant>, fillcolor="#39e58126"] ;
+8 -> 10 ;
+}
