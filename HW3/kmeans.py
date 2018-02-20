@@ -189,6 +189,29 @@ def k_means_clustering(k):
         f1List.append(f1s)
     display_overall(recallList, precisionList, f1List)
 
+def k_means_clustering_single(k):
+    rawData, osha = parse_input_clustering()
+    km = cluster.KMeans(n_clusters=k).fit(rawData)
+    clusters = []
+    for i in range(k):
+        c = get_cluster(i, km.labels_)
+        data = [rawData[i] for i in c]
+        clusters.append(
+            go.Scatter(
+                x=[p[0] for p in data],
+                y=[p[1] for p in data],
+                mode='markers',
+                name='cluster ' + str(i)
+            )
+        )
+    layout = dict(
+        title='kmeans k = ' + str(k),
+        xaxis=dict(title='distance'),
+        yaxis=dict(title='speed')
+    )
+    fig = dict(data=clusters, layout=layout)
+    py.plot(fig, filename='k' + str(k) + '.html')
+
 def elbow_method():
     rawData, osha = parse_input_clustering()
     maxDist = max([p[0] for p in rawData])
@@ -219,9 +242,9 @@ def elbow_method():
 
 
 def main():
-    # elbow_method()
-    # for i in range(2,5):
-    #     k_means_clustering(i)
+    elbow_method()
+    for i in range(2,5):
+        k_means_clustering_single(i)
     k_means_clustering(4)
 
 
