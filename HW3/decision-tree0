@@ -18,7 +18,7 @@ edge [fontname=helvetica] ;
 5 -> 7 ;
 8 [label=<Speed &le; 2.5<br/>gini = 0.435<br/>samples = 508<br/>value = [358, 132, 18]<br/>class = Compliant>, fillcolor="#e5813999"] ;
 0 -> 8 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
-9 [label=<Distance &le; 1.5<br/>gini = 0.091<br/>samples = 334<br/>value = [318, 0, 16]<br/>class = Compliant>, fillcolor="#e58139f2"] ;
+9 [label=<Location &le; 0.5<br/>gini = 0.091<br/>samples = 334<br/>value = [318, 0, 16]<br/>class = Compliant>, fillcolor="#e58139f2"] ;
 8 -> 9 ;
 10 [label=<gini = 0.052<br/>samples = 302<br/>value = [294, 0, 8]<br/>class = Compliant>, fillcolor="#e58139f8"] ;
 9 -> 10 ;

@@ -85,12 +85,13 @@ def calc_performance(pCount, rCount, eCount):
     precision = {}
     f1s = {}
     for t in [SAFE, COMPLIANT, NON_COMPLIANT]:
-        recall[t] = pCount[t] / rCount[t]
+        recall[t] = eCount[t] / rCount[t]
         if pCount[t] == 0:
             precision[t] = 1.0
         else:
             precision[t] = eCount[t] / pCount[t]
-        f1s[t] = 2.0 * ((precision[t] * recall[t]) / (precision[t] + recall[t]))
+        f1s[t] = 0.0 if precision[t] == 0 and recall[t] == 0 else \
+            2.0 * ((precision[t] * recall[t]) / (precision[t] + recall[t]))
     recall[AGG] = sum(list(recall.values())) / 3
     precision[AGG] = sum(list(precision.values())) / 3
     f1s[AGG] = sum(list(f1s.values())) / 3
@@ -146,28 +147,28 @@ def plot_baseline(numFolds, recallList, precisionList, f1List, baseRecallList, b
     recallLines.append(
         go.Scatter(
             x=[i for i in range(1, numFolds + 1)],
-            y=[abs(1 - r[AGG]) for r in recallList],
+            y=[r[AGG] for r in recallList],
             name='Recall'
         )
     )
     recallLines.append(
         go.Scatter(
             x=[i for i in range(1, numFolds + 1)],
-            y=[abs(1 - r[AGG]) for r in baseRecallList],
+            y=[r[AGG] for r in baseRecallList],
             name='Baseline Recall'
         )
     )
     precisionLines.append(
         go.Scatter(
             x=[i for i in range(1, numFolds + 1)],
-            y=[abs(1 - r[AGG]) for r in precisionList],
+            y=[r[AGG] for r in precisionList],
             name='Precision'
         )
     )
     precisionLines.append(
         go.Scatter(
             x=[i for i in range(1, numFolds + 1)],
-            y=[abs(1 - r[AGG]) for r in basePrecisionList],
+            y=[r[AGG] for r in basePrecisionList],
             name='Baseline Precision'
         )
     )
@@ -190,7 +191,7 @@ def plot_baseline(numFolds, recallList, precisionList, f1List, baseRecallList, b
         layout=dict(
             title='Baseline Recall All Classes',
             xaxis=dict(title='fold #', zeroline=True),
-            yaxis=dict(title='distance from 1', range=[-0.1, 1.3])
+            yaxis=dict(title='recall', range=[-0.1, 1.3])
         )
     )
     py.plot(fig, filename='recall-baseline.html')
@@ -199,7 +200,7 @@ def plot_baseline(numFolds, recallList, precisionList, f1List, baseRecallList, b
         layout=dict(
             title='Baseline Precision All Classes',
             xaxis=dict(title='fold #', zeroline=True),
-            yaxis=dict(title='distance from 1', range=[-0.1, 1.3])
+            yaxis=dict(title='precision', range=[-0.1, 1.3])
         )
     )
     py.plot(fig, filename='precision-baseline.html')
