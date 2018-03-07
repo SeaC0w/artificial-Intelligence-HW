@@ -24,7 +24,7 @@ edge [fontname=helvetica] ;
 9 -> 10 ;
 11 [label=<gini = 0.404<br/>samples = 32<br/>value = [23, 0, 9]<br/>class = Compliant>, fillcolor="#e581399b"] ;
 9 -> 11 ;
-12 [label=<Distance &le; 1.5<br/>gini = 0.371<br/>samples = 177<br/>value = [42, 134, 1]<br/>class = NonCompliant>, fillcolor="#39e581ae"] ;
+12 [label=<Location &le; 0.5<br/>gini = 0.371<br/>samples = 177<br/>value = [42, 134, 1]<br/>class = NonCompliant>, fillcolor="#39e581ae"] ;
 8 -> 12 ;
 13 [label=<Speed &le; 3.5<br/>gini = 0.07<br/>samples = 82<br/>value = [3, 79, 0]<br/>class = NonCompliant>, fillcolor="#39e581f5"] ;
 12 -> 13 ;
