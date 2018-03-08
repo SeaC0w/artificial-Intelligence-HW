@@ -1,4 +1,4 @@
-# blurb
+# by kerim celik and julia connelly for Artificial Intelligence, 03/07/2018
 ROOMS = ["w1", "w2", "w3", "w4",
          "o1", "o2", "o3", "o4",
          "o5", "o6"]
@@ -18,6 +18,7 @@ class Room:
         return self.adjacentRooms
 
 
+# sets up the floor plan as set out in problem description
 def makeConstraints():
     rList = [
         Room([1, 4, 5, 7, 8]),
@@ -33,6 +34,7 @@ def makeConstraints():
     return rList
 
 
+# finds all possible mappings using forward checking
 def forwardChecking(rList):
     initialColors = [UNASSIGN for r in rList]
     frontier = [initialColors]
@@ -66,6 +68,7 @@ def forwardChecking(rList):
         print(str([ROOMS[j] + ": " + COLOR_NAMES[c] for j, c in enumerate(v)]))
 
 
+# checks if the current coloring of rooms is valid given the constraints
 def isValid(colors, rList):
     for i, r in enumerate(rList):
         for n in r.getAdjacentRooms():
@@ -74,6 +77,7 @@ def isValid(colors, rList):
     return True
 
 
+# finds all possible mappings with no optimizations used
 def bruteForce(rList):
     initialColors = [UNASSIGN for r in rList]
     frontier = [initialColors]
