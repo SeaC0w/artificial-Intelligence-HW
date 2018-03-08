@@ -43,7 +43,6 @@ def forwardChecking(rList):
     valid = []
 
     while len(frontier) != 0:
-        count += 1
         cur = frontier.pop(0)
         visited.append(cur)
 
@@ -54,6 +53,8 @@ def forwardChecking(rList):
                 break
         if nextUnassigned == -1:
             valid.append(cur)
+            count += 1
+            continue
 
         usedColors = set([cur[i] for i in rList[nextUnassigned].getAdjacentRooms()])
         newColors = COLORS - usedColors
@@ -62,7 +63,7 @@ def forwardChecking(rList):
             n[nextUnassigned] = c
             if n not in visited and n not in frontier:
                 frontier.append(n)
-    print("number of steps: " + str(count))
+    print("number of runs: " + str(count))
     print("valid arrangements:")
     for v in valid:
         print(str([ROOMS[j] + ": " + COLOR_NAMES[c] for j, c in enumerate(v)]))
@@ -85,11 +86,11 @@ def bruteForce(rList):
     count = 0
     valid = []
     while len(frontier) != 0:
-        count += 1
         cur = frontier.pop(0)
         visited.append(cur)
 
         if not isValid(cur, rList):
+            count += 1
             continue
 
         nextUnassigned = -1
@@ -99,13 +100,15 @@ def bruteForce(rList):
                 break
         if nextUnassigned == -1:
             valid.append(cur)
+            count += 1
+            continue
 
         for c in COLORS:
             n = cur[:]
             n[nextUnassigned] = c
             if n not in visited and n not in frontier:
                 frontier.append(n)
-    print("number of steps: " + str(count))
+    print("number of runs: " + str(count))
     print("valid arrangements:")
     for v in valid:
         print(str([ROOMS[j] + ": " + COLOR_NAMES[c] for j, c in enumerate(v)]))
