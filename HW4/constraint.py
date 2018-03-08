@@ -54,6 +54,7 @@ def forwardChecking(rList):
         if nextUnassigned == -1:
             valid.append(cur)
             count += 1
+            print(str(len(valid)) + " valid arrangement found after " + str(count) + " runs")
             continue
 
         usedColors = set([cur[i] for i in rList[nextUnassigned].getAdjacentRooms()])
@@ -64,7 +65,7 @@ def forwardChecking(rList):
             n = cur[:]
             n[nextUnassigned] = c
             if n not in visited and n not in frontier:
-                frontier.append(n)
+                frontier.insert(0, n)
     print("number of runs: " + str(count))
     print("valid arrangements:")
     for v in valid:
@@ -103,13 +104,14 @@ def bruteForce(rList):
         if nextUnassigned == -1:
             valid.append(cur)
             count += 1
+            print(str(len(valid)) + " valid arrangement found after " + str(count) + " runs")
             continue
 
         for c in COLORS:
             n = cur[:]
             n[nextUnassigned] = c
             if n not in visited and n not in frontier:
-                frontier.append(n)
+                frontier.insert(0, n)
     print("number of runs: " + str(count))
     print("valid arrangements:")
     for v in valid:
