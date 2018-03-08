@@ -7,24 +7,15 @@ HUMID = 1
 PASS = 2
 UNASSIGN = -1
 COLORS = {TEMP, HUMID, PASS}
+COLOR_NAMES = ['temp', 'humid', 'pass']
 
 
 class Room:
     def __init__(self, rList):
         self.adjacentRooms = rList
-        self.value = UNASSIGN
-
-    def setAdjacentRooms(self, rList):
-        self.adjacentRooms = rList
 
     def getAdjacentRooms(self):
         return self.adjacentRooms
-
-    def setValue(self, v):
-        self.value = v
-
-    def getValue(self):
-        return self.value
 
 
 def makeConstraints():
@@ -42,24 +33,13 @@ def makeConstraints():
     return rList
 
 
-# returns string ID for location of room with the most constraints on it
-def getMostConstrainedValue(roomList):
-    return max(roomList, key=lambda r: len(r.getAdjacentRooms()))
-    # amt = 0
-    # track = 0
-    # l = [len(roomList[i].getAdjacentRooms()) for i in roomList]
-    # for j in l:
-    #     if l[j] > amt:
-    #         track = j
-    #         amt = l[j]
-    # return roomList[track]
-
-
 def forwardChecking(rList):
     initialColors = [UNASSIGN for r in rList]
     frontier = [initialColors]
     visited = []
     count = 0
+    valid = []
+
     while len(frontier) != 0:
         count += 1
         cur = frontier.pop(0)
@@ -71,7 +51,7 @@ def forwardChecking(rList):
                 nextUnassigned = i
                 break
         if nextUnassigned == -1:
-            print(str(cur))
+            valid.append(cur)
 
         usedColors = set([cur[i] for i in rList[nextUnassigned].getAdjacentRooms()])
         newColors = COLORS - usedColors
@@ -80,7 +60,10 @@ def forwardChecking(rList):
             n[nextUnassigned] = c
             if n not in visited and n not in frontier:
                 frontier.append(n)
-    print(str(count))
+    print("number of steps: " + str(count))
+    print("valid arrangements:")
+    for v in valid:
+        print(str([ROOMS[j] + ": " + COLOR_NAMES[c] for j, c in enumerate(v)]))
 
 
 def isValid(colors, rList):
@@ -96,6 +79,7 @@ def bruteForce(rList):
     frontier = [initialColors]
     visited = []
     count = 0
+    valid = []
     while len(frontier) != 0:
         count += 1
         cur = frontier.pop(0)
@@ -110,19 +94,24 @@ def bruteForce(rList):
                 nextUnassigned = i
                 break
         if nextUnassigned == -1:
-            print(str(cur))
+            valid.append(cur)
 
         for c in COLORS:
             n = cur[:]
             n[nextUnassigned] = c
             if n not in visited and n not in frontier:
                 frontier.append(n)
-    print(str(count))
+    print("number of steps: " + str(count))
+    print("valid arrangements:")
+    for v in valid:
+        print(str([ROOMS[j] + ": " + COLOR_NAMES[c] for j, c in enumerate(v)]))
 
 
 def main():
+    print("BRUTE FORCE:")
     bruteForce(makeConstraints())
     print()
+    print("FORWARD CHECKING:")
     forwardChecking(makeConstraints())
 
 
