@@ -58,6 +58,8 @@ def forwardChecking(rList):
 
         usedColors = set([cur[i] for i in rList[nextUnassigned].getAdjacentRooms()])
         newColors = COLORS - usedColors
+        if not newColors:
+            count += 1
         for c in newColors:
             n = cur[:]
             n[nextUnassigned] = c
